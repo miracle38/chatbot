@@ -11,71 +11,113 @@
             font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
             background: #f0f2f5;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
+            padding: 40px 24px;
         }
 
-        .card {
+        .page-header { max-width: 960px; margin: 0 auto 28px; }
+        .page-header h1 { font-size: 1.6em; color: #1e3c72; margin-bottom: 8px; }
+        .page-header p { color: #64748b; line-height: 1.6; }
+
+        .grid {
+            max-width: 960px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .bot-card {
             background: #fff;
             border-radius: 16px;
             box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            max-width: 560px;
-            width: 100%;
-            padding: 32px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
         }
 
-        h1 { font-size: 1.4em; color: #1e3c72; margin-bottom: 12px; }
-        p { color: #475569; line-height: 1.6; margin-bottom: 8px; }
-        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1>OfficeAgent 챗봇 위젯 테스트</h1>
-        <p>아래 버튼을 눌러 챗봇 위젯을 열어보세요.</p>
-        <p>이 프로젝트는 다른 사이트(캘린더 등)에 챗봇을 붙이기 전, 위젯 연동을 독립적으로 테스트/관리하기 위한 용도입니다.</p>
-        <p>site_key: <code>pk_fa2cdb11d3287e9ca8a0a335ce9db031</code></p>
+        .bot-card h2 { font-size: 1.15em; color: #1e3c72; margin-bottom: 10px; }
+        .bot-card p.desc { color: #475569; line-height: 1.6; margin-bottom: 10px; flex-grow: 1; }
+        .bot-card code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: #64748b; word-break: break-all; margin-bottom: 16px; display: inline-block; }
 
-        <!-- 챗봇 버튼 -->
-        <button id="chatbotSideBtn" type="button" aria-label="AI 챗봇 열기">💬 AI 상담 시작하기</button>
-    </div>
-
-    <style>
-        #chatbotSideBtn {
+        .bot-card button {
             display: block;
             width: 100%;
-            margin-top: 20px;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: #fff;
             border: none;
-            padding: 18px 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(30,60,114,0.28);
+            padding: 14px 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(30,60,114,0.28);
             cursor: pointer;
             font-family: inherit;
-            font-size: 1.05em;
+            font-size: 0.95em;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             transition: background 0.2s, transform 0.15s;
         }
-        #chatbotSideBtn:hover { background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); transform: translateY(-1px); }
-        #chatbotSideBtn:active { transform: translateY(0); }
-        /* OfficeAgent 위젯의 기본 플로팅 버튼은 숨기고, 위 커스텀 버튼으로 대체 */
+        .bot-card button:hover { background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); transform: translateY(-1px); }
+        .bot-card button:active { transform: translateY(0); }
+
+        /* OfficeAgent 위젯의 기본 플로팅 버튼은 숨기고, 카드 버튼으로만 열고 닫음 */
         .widget-launcher { display: none !important; }
     </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>OfficeAgent 챗봇 위젯 테스트</h1>
+        <p>카드별로 서로 다른 챗봇(site_key)을 등록해두고, 버튼을 눌러 해당 챗봇을 열어볼 수 있습니다. 새 챗봇을 추가하려면 아래 스크립트의 <code>CHATBOTS</code> 배열에 항목만 추가하면 됩니다.</p>
+    </div>
+
+    <div class="grid" id="botGrid"></div>
 
     <!-- OfficeAgent 임베드 챗봇 -->
     <script type="module" src="https://chatbot.officeagent.kr/widget-loader.js"></script>
     <script type="module">
-        const chatWidget = window.ChatWidget.init({
-            site_key: 'pk_fa2cdb11d3287e9ca8a0a335ce9db031',
-            // 선택: 로그인 사용자 식별 시
-            // customer: 'BASE64(로그인 사용자 식별자)',
+        // 새 챗봇을 추가하려면 이 배열에 항목만 추가하면 됩니다.
+        const CHATBOTS = [
+            {
+                name: '오피스키퍼 EP 체크리스트 도우미',
+                description: '오피스키퍼 EP 체크리스트 관련 문의를 답변하는 챗봇입니다.',
+                site_key: 'pk_fa2cdb11d3287e9ca8a0a335ce9db031',
+            },
+        ];
+
+        const grid = document.getElementById('botGrid');
+        CHATBOTS.forEach((bot, idx) => {
+            const card = document.createElement('div');
+            card.className = 'bot-card';
+            card.innerHTML = `
+                <h2>${bot.name}</h2>
+                <p class="desc">${bot.description}</p>
+                <code>${bot.site_key}</code>
+                <button type="button" data-idx="${idx}" aria-label="${bot.name} 열기">💬 상담 시작하기</button>
+            `;
+            grid.appendChild(card);
         });
-        document.getElementById('chatbotSideBtn').addEventListener('click', function () {
-            chatWidget.open();
+
+        let activeWidget = null;
+        let activeSiteKey = null;
+
+        grid.addEventListener('click', function (e) {
+            const btn = e.target.closest('button[data-idx]');
+            if (!btn) return;
+            const bot = CHATBOTS[Number(btn.dataset.idx)];
+
+            if (activeSiteKey === bot.site_key && activeWidget) {
+                activeWidget.open();
+                return;
+            }
+            if (activeWidget) {
+                activeWidget.destroy();
+            }
+            activeWidget = window.ChatWidget.init({
+                site_key: bot.site_key,
+                // 선택: 로그인 사용자 식별 시
+                // customer: 'BASE64(로그인 사용자 식별자)',
+            });
+            activeSiteKey = bot.site_key;
+            activeWidget.open();
         });
     </script>
 </body>
