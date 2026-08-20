@@ -168,7 +168,12 @@
             }
         }
 
-        CHATBOTS.forEach((bot, idx) => loadBotInfo(bot, cards[idx]));
+        (async function loadAllSequentially() {
+            for (let i = 0; i < CHATBOTS.length; i++) {
+                await loadBotInfo(CHATBOTS[i], cards[i]);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        })();
 
         let activeWidget = null;
         let activeSiteKey = null;
