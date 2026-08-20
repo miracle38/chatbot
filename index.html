@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OfficeAgent 챗봇 위젯</title>
+    <title>AI 챗봇 허브</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231e3c72'/><text x='32' y='43' font-size='30' text-anchor='middle'>%F0%9F%92%AC</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,35 +12,70 @@
             font-family: 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
             background: #f0f2f5;
             min-height: 100vh;
-            padding: 40px 24px;
+            padding: 56px 24px;
         }
 
-        .page-header { max-width: 960px; margin: 0 auto 28px; }
-        .page-header h1 { font-size: 1.6em; color: #1e3c72; margin-bottom: 8px; }
-        .page-header p { color: #64748b; line-height: 1.6; }
+        .page-header { max-width: 880px; margin: 0 auto 36px; text-align: center; }
+        .page-header .eyebrow {
+            display: inline-block;
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: #2a5298;
+            background: #e3ebfa;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+        .page-header h1 { font-size: 1.9em; color: #16264d; margin-bottom: 10px; letter-spacing: -0.3px; }
+        .page-header p { color: #64748b; line-height: 1.6; font-size: 0.98em; }
 
         .grid {
-            max-width: 960px;
+            max-width: 880px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
             justify-content: center;
-            gap: 20px;
+            gap: 22px;
         }
 
         .bot-card {
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            padding: 28px;
+            border-radius: 18px;
+            box-shadow: 0 6px 28px rgba(16,38,77,0.08);
+            padding: 26px;
             display: flex;
             flex-direction: column;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .bot-card:hover { box-shadow: 0 10px 32px rgba(16,38,77,0.13); transform: translateY(-2px); }
+
+        .bot-card .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            margin-bottom: 14px;
         }
 
-        .bot-card h2 { font-size: 1.15em; color: #1e3c72; margin-bottom: 10px; }
-        .bot-card p.desc { color: #475569; line-height: 1.6; margin-bottom: 10px; flex-grow: 1; }
-        .bot-card p.desc.error { color: #c0392b; }
-        .bot-card code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: #64748b; word-break: break-all; margin-bottom: 16px; display: inline-block; }
+        .bot-card h2 { font-size: 1.08em; color: #16264d; margin-bottom: 8px; line-height: 1.4; }
+        .bot-card p.desc { color: #64748b; line-height: 1.6; margin-bottom: 18px; flex-grow: 1; font-size: 0.92em; }
+
+        .bot-card.is-error .icon { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); }
+        .bot-card.is-error p.desc { color: #b23b2e; }
+        .bot-card .hint { color: #94a3b8; font-size: 0.78em; margin-top: -10px; margin-bottom: 18px; }
+
+        .bot-card .site-key {
+            font-size: 0.7em;
+            color: #94a3b8;
+            font-family: 'Consolas', monospace;
+            margin-bottom: 14px;
+            word-break: break-all;
+        }
 
         .bot-card button {
             display: block;
@@ -48,12 +83,12 @@
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: #fff;
             border: none;
-            padding: 14px 16px;
+            padding: 13px 16px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(30,60,114,0.28);
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.95em;
+            font-size: 0.92em;
             font-weight: 700;
             letter-spacing: 0.3px;
             transition: background 0.2s, transform 0.15s;
@@ -61,14 +96,19 @@
         .bot-card button:hover { background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); transform: translateY(-1px); }
         .bot-card button:active { transform: translateY(0); }
 
+        /* 로딩 스켈레톤 */
+        .skeleton { display: inline-block; height: 0.9em; border-radius: 4px; background: linear-gradient(90deg, #eef1f6 25%, #e2e7ef 37%, #eef1f6 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+        @keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
         /* OfficeAgent 위젯의 기본 플로팅 버튼은 숨기고, 카드 버튼으로만 열고 닫음 */
         .widget-launcher { display: none !important; }
     </style>
 </head>
 <body>
     <div class="page-header">
-        <h1>OfficeAgent 챗봇 위젯 테스트</h1>
-        <p>카드별로 서로 다른 챗봇(site_key)을 등록해두고, 버튼을 눌러 해당 챗봇을 열어볼 수 있습니다. 제목/설명은 OfficeAgent에 등록된 실제 봇 설정을 그때그때 불러와 표시하므로, 그쪽에서 이름/설명을 바꾸면 이 페이지에도 자동으로 반영됩니다. 새 챗봇을 추가하려면 아래 스크립트의 <code>CHATBOTS</code> 배열에 site_key만 추가하면 됩니다.</p>
+        <span class="eyebrow">OFFICEAGENT</span>
+        <h1>AI 챗봇 허브</h1>
+        <p>등록된 챗봇 중 하나를 선택해 바로 대화를 시작하세요.</p>
     </div>
 
     <div class="grid" id="botGrid"></div>
@@ -87,10 +127,11 @@
             const card = document.createElement('div');
             card.className = 'bot-card';
             card.innerHTML = `
-                <h2>불러오는 중...</h2>
-                <p class="desc"></p>
-                <code>${bot.site_key}</code>
-                <button type="button" data-idx="${idx}" aria-label="챗봇 열기">💬 챗봇 실행</button>
+                <div class="icon">💬</div>
+                <h2><span class="skeleton" style="width:70%">&nbsp;</span></h2>
+                <p class="desc"><span class="skeleton" style="width:100%">&nbsp;</span></p>
+                <div class="site-key">${bot.site_key}</div>
+                <button type="button" data-idx="${idx}" aria-label="챗봇 열기">챗봇 실행</button>
             `;
             grid.appendChild(card);
             return card;
@@ -114,9 +155,12 @@
                 desc.textContent = bot.description;
                 btn.setAttribute('aria-label', bot.name + ' 열기');
             } catch (err) {
-                h2.textContent = '불러오기 실패';
-                desc.textContent = '이 도메인이 OfficeAgent 허용 도메인 목록에 등록되어 있는지 확인해주세요. (' + err.message + ')';
-                desc.classList.add('error');
+                card.classList.add('is-error');
+                h2.textContent = '아직 사용할 수 없어요';
+                desc.innerHTML = '이 사이트가 OfficeAgent에서 아직 승인되지 않았습니다.<div class="hint">' + err.message + '</div>';
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
             }
         }
 
@@ -127,7 +171,7 @@
 
         grid.addEventListener('click', function (e) {
             const btn = e.target.closest('button[data-idx]');
-            if (!btn) return;
+            if (!btn || btn.disabled) return;
             const bot = CHATBOTS[Number(btn.dataset.idx)];
 
             if (activeSiteKey === bot.site_key && activeWidget) {
