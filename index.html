@@ -141,10 +141,61 @@
             return card;
         });
 
-        async function loadBotInfo(bot, card) {
+        // 새로고침마다 봇 개수만큼 API를 다시 부르면 rate limit에 쉽게 걸리므로,
+        // 한 번 불러온 이름/설명은 10분 캐시해두고 그 안에서는 캐시만 사용
+        const CACHE_KEY = 'chatbotInfoCache';
+        const CACHE_TTL_MS = 10 * 60 * 1000;
+
+        function readCache(siteKey) {
+            try {
+                const all = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+                return all[siteKey] || null;
+            } catch (e) {
+                return null;
+            }
+        }
+        function writeCache(siteKey, entry) {
+            try {
+                const all = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+                all[siteKey] = entry;
+                localStorage.setItem(CACHE_KEY, JSON.stringify(all));
+            } catch (e) { /* 저장 공간 문제 등은 무시 */ }
+        }
+
+        function renderBotInfo(card, name, description) {
             const h2 = card.querySelector('h2');
             const desc = card.querySelector('p.desc');
             const btn = card.querySelector('button');
+            card.classList.remove('is-error');
+            h2.textContent = name;
+            desc.textContent = description;
+            btn.setAttribute('aria-label', name + ' 열기');
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+        }
+
+        function renderBotError(card, message) {
+            const h2 = card.querySelector('h2');
+            const desc = card.querySelector('p.desc');
+            const btn = card.querySelector('button');
+            card.classList.add('is-error');
+            h2.textContent = '아직 사용할 수 없어요';
+            desc.innerHTML = '이 사이트가 OfficeAgent에서 아직 승인되지 않았습니다.<div class="hint">' + message + '</div>';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        }
+
+        async function loadBotInfo(bot, card) {
+            const cached = readCache(bot.site_key);
+            if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+                bot.name = cached.name;
+                bot.description = cached.description;
+                renderBotInfo(card, cached.name, cached.description);
+                return;
+            }
+
             try {
                 const res = await fetch('https://api-agent.officemail.ai/api/v1/guest/init', {
                     method: 'POST',
@@ -155,23 +206,24 @@
                 if (!res.ok) throw new Error(data.detail || ('HTTP ' + res.status));
                 bot.name = data.chatbot_name || (data.agent && data.agent.name) || bot.site_key;
                 bot.description = (data.agent && data.agent.description) || '';
-                h2.textContent = bot.name;
-                desc.textContent = bot.description;
-                btn.setAttribute('aria-label', bot.name + ' 열기');
+                renderBotInfo(card, bot.name, bot.description);
+                writeCache(bot.site_key, { name: bot.name, description: bot.description, ts: Date.now() });
             } catch (err) {
-                card.classList.add('is-error');
-                h2.textContent = '아직 사용할 수 없어요';
-                desc.innerHTML = '이 사이트가 OfficeAgent에서 아직 승인되지 않았습니다.<div class="hint">' + err.message + '</div>';
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
+                // API 호출이 실패해도(예: rate limit) 이전에 성공했던 캐시가 있으면 그걸로 보여줌
+                if (cached) {
+                    bot.name = cached.name;
+                    bot.description = cached.description;
+                    renderBotInfo(card, cached.name, cached.description);
+                } else {
+                    renderBotError(card, err.message);
+                }
             }
         }
 
         (async function loadAllSequentially() {
             for (let i = 0; i < CHATBOTS.length; i++) {
                 await loadBotInfo(CHATBOTS[i], cards[i]);
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
         })();
 
