@@ -39,6 +39,7 @@
 
         .bot-card h2 { font-size: 1.15em; color: #1e3c72; margin-bottom: 10px; }
         .bot-card p.desc { color: #475569; line-height: 1.6; margin-bottom: 10px; flex-grow: 1; }
+        .bot-card p.desc.error { color: #c0392b; }
         .bot-card code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; color: #64748b; word-break: break-all; margin-bottom: 16px; display: inline-block; }
 
         .bot-card button {
@@ -67,7 +68,7 @@
 <body>
     <div class="page-header">
         <h1>OfficeAgent 챗봇 위젯 테스트</h1>
-        <p>카드별로 서로 다른 챗봇(site_key)을 등록해두고, 버튼을 눌러 해당 챗봇을 열어볼 수 있습니다. 새 챗봇을 추가하려면 아래 스크립트의 <code>CHATBOTS</code> 배열에 항목만 추가하면 됩니다.</p>
+        <p>카드별로 서로 다른 챗봇(site_key)을 등록해두고, 버튼을 눌러 해당 챗봇을 열어볼 수 있습니다. 제목/설명은 OfficeAgent에 등록된 실제 봇 설정을 그때그때 불러와 표시하므로, 그쪽에서 이름/설명을 바꾸면 이 페이지에도 자동으로 반영됩니다. 새 챗봇을 추가하려면 아래 스크립트의 <code>CHATBOTS</code> 배열에 site_key만 추가하면 됩니다.</p>
     </div>
 
     <div class="grid" id="botGrid"></div>
@@ -75,27 +76,51 @@
     <!-- OfficeAgent 임베드 챗봇 -->
     <script type="module" src="https://chatbot.officeagent.kr/widget-loader.js"></script>
     <script type="module">
-        // 새 챗봇을 추가하려면 이 배열에 항목만 추가하면 됩니다.
+        // 새 챗봇을 추가하려면 이 배열에 site_key만 추가하면 됩니다. 이름/설명은 OfficeAgent에서 자동으로 가져옵니다.
         const CHATBOTS = [
-            {
-                name: '[김해성] 오피스키퍼 EP 체크리스트 도우미',
-                description: '오피스키퍼 EP 체크리스트에 대한 정보를 제공하고 테스트를 진행하는 에이전트입니다.',
-                site_key: 'pk_fa2cdb11d3287e9ca8a0a335ce9db031',
-            },
+            { site_key: 'pk_fa2cdb11d3287e9ca8a0a335ce9db031' },
+            { site_key: 'pk_8c28225ba3877e8490fc6ad47cfbf0fb' },
         ];
 
         const grid = document.getElementById('botGrid');
-        CHATBOTS.forEach((bot, idx) => {
+        const cards = CHATBOTS.map((bot, idx) => {
             const card = document.createElement('div');
             card.className = 'bot-card';
             card.innerHTML = `
-                <h2>${bot.name}</h2>
-                <p class="desc">${bot.description}</p>
+                <h2>불러오는 중...</h2>
+                <p class="desc"></p>
                 <code>${bot.site_key}</code>
-                <button type="button" data-idx="${idx}" aria-label="${bot.name} 열기">💬 챗봇 실행</button>
+                <button type="button" data-idx="${idx}" aria-label="챗봇 열기">💬 챗봇 실행</button>
             `;
             grid.appendChild(card);
+            return card;
         });
+
+        async function loadBotInfo(bot, card) {
+            const h2 = card.querySelector('h2');
+            const desc = card.querySelector('p.desc');
+            const btn = card.querySelector('button');
+            try {
+                const res = await fetch('https://api-agent.officemail.ai/api/v1/guest/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ site_key: bot.site_key }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || ('HTTP ' + res.status));
+                bot.name = data.chatbot_name || (data.agent && data.agent.name) || bot.site_key;
+                bot.description = (data.agent && data.agent.description) || '';
+                h2.textContent = bot.name;
+                desc.textContent = bot.description;
+                btn.setAttribute('aria-label', bot.name + ' 열기');
+            } catch (err) {
+                h2.textContent = '불러오기 실패';
+                desc.textContent = '이 도메인이 OfficeAgent 허용 도메인 목록에 등록되어 있는지 확인해주세요. (' + err.message + ')';
+                desc.classList.add('error');
+            }
+        }
+
+        CHATBOTS.forEach((bot, idx) => loadBotInfo(bot, cards[idx]));
 
         let activeWidget = null;
         let activeSiteKey = null;
