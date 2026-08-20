@@ -62,7 +62,8 @@
             margin-bottom: 14px;
             overflow: hidden;
         }
-        .bot-card .icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bot-card .icon.has-avatar { background: none; }
+        .bot-card .icon img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
         .bot-card h2 { font-size: 1.08em; color: #16264d; margin-bottom: 8px; line-height: 1.4; }
         .bot-card p.desc { color: #64748b; line-height: 1.6; margin-bottom: 18px; flex-grow: 1; font-size: 0.92em; }
@@ -179,7 +180,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.0</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.1</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -198,6 +199,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.2.1',
+                date: '2026-08-20',
+                title: '아이콘 배경 제거',
+                fixed: [
+                    '아바타 이미지가 있을 때 뒤에 남아있던 파란 배경 박스를 제거해 로고만 깔끔하게 보이도록 수정',
+                ],
+            },
             {
                 version: '1.2.0',
                 date: '2026-08-20',
@@ -345,7 +354,8 @@
             btn.style.opacity = '';
             btn.style.cursor = '';
             if (avatarUrl) {
-                icon.innerHTML = `<img src="${esc(avatarUrl)}" alt="" onerror="this.parentElement.textContent='💬'">`;
+                icon.classList.add('has-avatar');
+                icon.innerHTML = `<img src="${esc(avatarUrl)}" alt="" onerror="this.parentElement.classList.remove('has-avatar'); this.parentElement.textContent='💬'">`;
             }
         }
 
