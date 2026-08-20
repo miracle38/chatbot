@@ -34,36 +34,34 @@
 <body>
     <div class="card">
         <h1>OfficeAgent 챗봇 위젯 테스트</h1>
-        <p>화면 우측 중앙의 <strong>💬 AI 상담</strong> 버튼을 눌러 챗봇 위젯을 열어보세요.</p>
+        <p>아래 버튼을 눌러 챗봇 위젯을 열어보세요.</p>
         <p>이 프로젝트는 다른 사이트(캘린더 등)에 챗봇을 붙이기 전, 위젯 연동을 독립적으로 테스트/관리하기 위한 용도입니다.</p>
         <p>site_key: <code>pk_fa2cdb11d3287e9ca8a0a335ce9db031</code></p>
+
+        <!-- 챗봇 버튼 -->
+        <button id="chatbotSideBtn" type="button" aria-label="AI 챗봇 열기">💬 AI 상담 시작하기</button>
     </div>
 
-    <!-- 챗봇 사이드 버튼 -->
-    <button id="chatbotSideBtn" type="button" aria-label="AI 챗봇 열기">💬 AI 상담</button>
     <style>
         #chatbotSideBtn {
-            position: fixed;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 9999;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: #fff;
             border: none;
-            padding: 16px 10px;
-            border-radius: 10px 0 0 10px;
-            box-shadow: -2px 2px 12px rgba(0,0,0,0.18);
+            padding: 18px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(30,60,114,0.28);
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.85em;
-            font-weight: 600;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            letter-spacing: 1px;
-            transition: padding-right 0.2s, background 0.2s;
+            font-size: 1.05em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            transition: background 0.2s, transform 0.15s;
         }
-        #chatbotSideBtn:hover { padding-right: 16px; background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); }
+        #chatbotSideBtn:hover { background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%); transform: translateY(-1px); }
+        #chatbotSideBtn:active { transform: translateY(0); }
         /* OfficeAgent 위젯의 기본 플로팅 버튼은 숨기고, 위 커스텀 버튼으로 대체 */
         .widget-launcher { display: none !important; }
     </style>
