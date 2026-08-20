@@ -70,12 +70,16 @@
         .bot-card .hint { color: #94a3b8; font-size: 0.78em; margin-top: -10px; margin-bottom: 18px; }
 
         .bot-card .site-key {
+            display: none;
             font-size: 0.7em;
             color: #94a3b8;
             font-family: 'Consolas', monospace;
             margin-bottom: 14px;
             word-break: break-all;
         }
+        body.reveal-keys .bot-card .site-key { display: block; }
+
+        .page-header .eyebrow { cursor: default; user-select: none; }
 
         .bot-card button {
             display: block;
@@ -173,7 +177,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.0.0</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.1.0</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -192,6 +196,17 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.1.0',
+                date: '2026-08-20',
+                title: '카드 정리 및 site_key 숨김 처리',
+                changed: [
+                    '카드 하단의 site_key 표시를 기본적으로 숨기고, 상단 "OFFICEAGENT" 문구를 1초 안에 3번 연속 클릭하면 토글되도록 변경',
+                ],
+                fixed: [
+                    'pk_fa2cdb11d3287e9ca8a0a335ce9db031 챗봇 카드 제거',
+                ],
+            },
             {
                 version: '1.0.0',
                 date: '2026-08-20',
@@ -245,9 +260,25 @@
         window.openVersionModal = openVersionModal;
         window.closeVersionModal = closeVersionModal;
 
+        // OFFICEAGENT 문구를 1초 안에 3번 연속 클릭하면 site_key 표시를 토글 (디버그용 숨김 기능)
+        (function setupEyebrowEasterEgg() {
+            const eyebrow = document.querySelector('.eyebrow');
+            if (!eyebrow) return;
+            let clickCount = 0;
+            let lastClickTime = 0;
+            eyebrow.addEventListener('click', function () {
+                const now = Date.now();
+                clickCount = (now - lastClickTime < 1000) ? clickCount + 1 : 1;
+                lastClickTime = now;
+                if (clickCount >= 3) {
+                    document.body.classList.toggle('reveal-keys');
+                    clickCount = 0;
+                }
+            });
+        })();
+
         // 새 챗봇을 추가하려면 이 배열에 site_key만 추가하면 됩니다. 이름/설명은 OfficeAgent에서 자동으로 가져옵니다.
         const CHATBOTS = [
-            { site_key: 'pk_fa2cdb11d3287e9ca8a0a335ce9db031' },
             { site_key: 'pk_8c28225ba3877e8490fc6ad47cfbf0fb' },
             { site_key: 'pk_a7e39720c2c4784a2da2e0aa4224d00e' },
             { site_key: 'pk_bd55099cf2778b691e5613990157762d' },
