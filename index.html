@@ -121,16 +121,20 @@
             z-index: 9999;
         }
         .chat-panel.active { display: block; }
+        /* 위젯 자체 헤더의 X 버튼과 같은 자리/모양으로 겹쳐 놓아서, 사용자가 그 X를 눌러도
+           실제로는 이 버튼이 클릭을 가로채 프레임 전체가 닫히게 함 (안 그러면 위젯 내부만
+           닫히고 빈 프레임이 카드 위에 남는 문제가 있었음) */
         .chat-panel .close-btn {
-            position: absolute; top: -10px; right: -10px;
-            width: 24px; height: 24px; border-radius: 50%;
-            background: #fff; color: #94a3b8; border: 1px solid #e2e8f0;
-            font-size: 0.75em; line-height: 1;
-            box-shadow: 0 2px 6px rgba(16,38,77,0.15);
-            cursor: pointer; z-index: 2; opacity: 0.85;
-            transition: opacity 0.15s, color 0.15s;
+            position: absolute; top: 16px; right: 14px;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: rgba(255,255,255,0.95); color: #64748b; border: none;
+            font-size: 0.8em; line-height: 1;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            cursor: pointer; z-index: 3; opacity: 0.01;
+            transition: opacity 0.15s;
         }
-        .chat-panel .close-btn:hover { opacity: 1; color: #2a5298; }
+        .chat-panel .close-btn:hover,
+        .chat-panel .close-btn:focus-visible { opacity: 1; }
         .bot-frame {
             display: none;
             position: absolute; inset: 0;
@@ -148,12 +152,6 @@
                 max-width: 100%; max-height: 100%;
             }
             .bot-frame { border-radius: 0; box-shadow: none; }
-            .chat-panel .close-btn {
-                top: 12px; right: 12px;
-                width: 32px; height: 32px;
-                background: rgba(255,255,255,0.95);
-                box-shadow: 0 2px 8px rgba(16,38,77,0.2);
-            }
             /* 챗봇이 전체화면으로 떠 있는 동안 뒤의 카드 목록이 같이 스크롤되지 않도록 고정 */
             body.chat-open { overflow: hidden; }
         }
@@ -228,7 +226,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.4</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.5</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -249,6 +247,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.4.5',
+                date: '2026-08-21',
+                title: '닫기 버튼을 위젯 자체 X 버튼 위치에 투명하게 겹침',
+                fixed: [
+                    '닫기(✕) 버튼을 위젯 자체 X 버튼과 같은 위치/크기로 옮기고 투명하게 처리 — 사용자가 위젯 자체 X를 눌러도 실제로는 이 버튼이 클릭을 가로채 프레임 전체가 자연스럽게 닫히도록 함 (기존에는 위젯 내부만 닫히고 빈 프레임이 카드 위에 남는 문제가 있었음)',
+                ],
+            },
             {
                 version: '1.4.4',
                 date: '2026-08-21',
