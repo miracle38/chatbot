@@ -183,7 +183,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.3.0</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.3.1</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -202,6 +202,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.3.1',
+                date: '2026-08-21',
+                title: '모바일 뒤로가기로 챗봇만 닫히도록 수정',
+                fixed: [
+                    '챗봇을 연 상태에서 모바일 단말기 뒤로가기를 누르면 페이지 전체가 아니라 챗봇 창만 닫히도록 변경 (history.pushState + popstate 활용)',
+                ],
+            },
             {
                 version: '1.3.0',
                 date: '2026-08-21',
@@ -468,13 +476,32 @@
         let activeWidget = null;
         let activeSiteKey = null;
 
+        // 모바일에서 챗봇이 열려 있을 때 단말기 뒤로가기를 누르면 페이지를 나가지 않고
+        // 챗봇만 닫히도록, 열 때 히스토리를 한 단계 쌓아두고 popstate에서 close() 처리
+        let chatHistoryPushed = false;
+
+        function openActiveWidget() {
+            if (!chatHistoryPushed) {
+                history.pushState({ chatbotOpen: true }, '');
+                chatHistoryPushed = true;
+            }
+            activeWidget.open();
+        }
+
+        window.addEventListener('popstate', function () {
+            if (chatHistoryPushed) {
+                chatHistoryPushed = false;
+                if (activeWidget) activeWidget.close();
+            }
+        });
+
         grid.addEventListener('click', function (e) {
             const btn = e.target.closest('button[data-idx]');
             if (!btn || btn.disabled) return;
             const bot = CHATBOTS[Number(btn.dataset.idx)];
 
             if (activeSiteKey === bot.site_key && activeWidget) {
-                activeWidget.open();
+                openActiveWidget();
                 return;
             }
             if (activeWidget) {
@@ -486,7 +513,7 @@
                 // customer: 'BASE64(로그인 사용자 식별자)',
             });
             activeSiteKey = bot.site_key;
-            activeWidget.open();
+            openActiveWidget();
         });
     </script>
 </body>
