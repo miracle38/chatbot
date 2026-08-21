@@ -11,6 +11,11 @@
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-08-21
+
+### Fixed
+- v1.4.6에서 준 좌우 여백이 오른쪽에만 크게 남고 챗봇 창이 좌측으로 몰려 보이던 문제 — iframe(replaced element)에 absolute + width:auto를 주면 left/right 사이로 안 늘어나고 브라우저 기본 크기로 줄어드는 스펙 동작 때문이었음. width를 calc()로 명시해서 수정
+
 ## [1.4.6] - 2026-08-21
 
 ### Fixed

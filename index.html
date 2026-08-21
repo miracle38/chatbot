@@ -158,7 +158,10 @@
             }
             .chat-panel .close-btn { right: 28px; }
             .bot-frame {
-                left: 14px; right: 14px; width: auto;
+                /* iframe은 replaced element라 absolute + width:auto가 left/right 사이로
+                   안 늘어나고 브라우저 기본 iframe 크기(약 300px)로 줄어드는 문제가 있어
+                   너비를 명시적으로 계산해서 지정 */
+                left: 14px; right: 14px; width: calc(100% - 28px);
                 border-radius: 0; box-shadow: none;
             }
             /* 챗봇이 전체화면으로 떠 있는 동안 뒤의 카드 목록이 같이 스크롤되지 않도록 고정 */
@@ -235,7 +238,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.6</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.7</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -256,6 +259,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.4.7',
+                date: '2026-08-21',
+                title: '모바일 좌우 여백이 좌측에 몰리던 문제 수정',
+                fixed: [
+                    'v1.4.6에서 준 좌우 여백이 오른쪽에만 크게 남고 챗봇 창이 좌측으로 몰려 보이던 문제 — iframe(replaced element)에 absolute + width:auto를 주면 left/right 사이로 안 늘어나고 브라우저 기본 크기로 줄어드는 스펙 동작 때문이었음. width를 calc()로 명시해서 수정',
+                ],
+            },
             {
                 version: '1.4.6',
                 date: '2026-08-21',
