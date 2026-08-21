@@ -183,7 +183,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.3.2</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.3.3</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -202,6 +202,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.3.3',
+                date: '2026-08-21',
+                title: '봇 전환 로직 원복 (SDK 제약 확인)',
+                fixed: [
+                    'v1.3.2에서 시도한 "전환 시 close()만 하고 인스턴스 유지" 방식이 실제로는 전환 자체가 안 되고 이전 봇 대화가 계속 떠 있는 더 심한 버그였음을 확인 — widget-loader.js 코드 확인 결과 SDK가 싱글톤이라 destroy() 없이는 다른 site_key로 전환 불가, 게다가 destroy()가 그 봇의 저장 세션(localStorage)까지 지워서 전환 시 대화가 초기화되는 것은 SDK 자체의 제약. destroy() 기반 전환으로 되돌림 (올바른 봇이 표시되는 것을 우선)',
+                ],
+            },
             {
                 version: '1.3.2',
                 date: '2026-08-21',
@@ -484,19 +492,15 @@
         let activeWidget = null;
         let activeSiteKey = null;
 
-        // 봇마다 위젯 인스턴스를 한 번만 init()하고 재사용 — 다른 봇으로 전환할 때
-        // destroy() 하면 대화 내용이 날아가므로, 전환 시에는 close()만 하고 인스턴스는 유지
-        const widgetInstances = {};
-
+        // OfficeAgent 위젯 SDK는 싱글톤이라 destroy() 없이는 다른 site_key로 전환이 안 되고,
+        // destroy()는 그 봇의 저장된 세션(localStorage)도 함께 지운다 — 즉 봇을 전환하면
+        // 대화가 초기화되는 것은 SDK 자체의 제약이라 페이지 코드만으로는 우회할 수 없음.
         function getOrCreateWidget(siteKey) {
-            if (!widgetInstances[siteKey]) {
-                widgetInstances[siteKey] = window.ChatWidget.init({
-                    site_key: siteKey,
-                    // 선택: 로그인 사용자 식별 시
-                    // customer: 'BASE64(로그인 사용자 식별자)',
-                });
-            }
-            return widgetInstances[siteKey];
+            return window.ChatWidget.init({
+                site_key: siteKey,
+                // 선택: 로그인 사용자 식별 시
+                // customer: 'BASE64(로그인 사용자 식별자)',
+            });
         }
 
         // 모바일에서 챗봇이 열려 있을 때 단말기 뒤로가기를 누르면 페이지를 나가지 않고
@@ -528,7 +532,7 @@
                 return;
             }
             if (activeWidget) {
-                activeWidget.close();
+                activeWidget.destroy();
             }
             activeWidget = getOrCreateWidget(bot.site_key);
             activeSiteKey = bot.site_key;
