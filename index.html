@@ -181,7 +181,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.4</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.5</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -200,6 +200,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.2.5',
+                date: '2026-08-21',
+                title: '카드 노출 순서 변경',
+                changed: [
+                    '카드 순서를 오피스키퍼_구축형 → 오피스키퍼 EP → 오피스챗 → 에스원 NEXT 메신저 → 오피스넥스트 플랫폼 순으로 조정',
+                ],
+            },
             {
                 version: '1.2.4',
                 date: '2026-08-21',
@@ -323,11 +331,11 @@
 
         // 새 챗봇을 추가하려면 이 배열에 site_key만 추가하면 됩니다. 이름/설명은 OfficeAgent에서 자동으로 가져옵니다.
         const CHATBOTS = [
-            { site_key: 'pk_8c28225ba3877e8490fc6ad47cfbf0fb' },
-            { site_key: 'pk_a7e39720c2c4784a2da2e0aa4224d00e' },
-            { site_key: 'pk_bd55099cf2778b691e5613990157762d' },
-            { site_key: 'pk_f6ab06795473c47fc2f96e06cb56ba1f' },
-            { site_key: 'pk_0b28d01c27b3ff66722720bc5fa00c12' },
+            { site_key: 'pk_a7e39720c2c4784a2da2e0aa4224d00e' }, // 오피스키퍼_구축형 전문가
+            { site_key: 'pk_0b28d01c27b3ff66722720bc5fa00c12' }, // 오피스키퍼 EP 전문가
+            { site_key: 'pk_8c28225ba3877e8490fc6ad47cfbf0fb' }, // 오피스챗 전문가
+            { site_key: 'pk_f6ab06795473c47fc2f96e06cb56ba1f' }, // 에스원 NEXT 메신저 전문가
+            { site_key: 'pk_bd55099cf2778b691e5613990157762d' }, // 오피스넥스트 플랫폼 전문가
         ];
 
         const grid = document.getElementById('botGrid');
