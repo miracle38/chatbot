@@ -140,6 +140,22 @@
         }
         .bot-frame.active { display: block; }
 
+        /* 모바일에서는 목록을 유지할 필요가 없으니 챗봇을 전체화면으로 표시 */
+        @media (max-width: 640px) {
+            .chat-panel {
+                top: 0; right: 0; bottom: 0; left: 0;
+                width: 100%; height: 100%;
+                max-width: 100%; max-height: 100%;
+            }
+            .bot-frame { border-radius: 0; box-shadow: none; }
+            .chat-panel .close-btn {
+                top: 12px; right: 12px;
+                width: 32px; height: 32px;
+                background: rgba(255,255,255,0.95);
+                box-shadow: 0 2px 8px rgba(16,38,77,0.2);
+            }
+        }
+
         .page-footer { max-width: 880px; margin: 40px auto 0; text-align: center; }
         .page-footer .version-link {
             color: #94a3b8; font-size: 0.72em; text-decoration: none;
@@ -210,7 +226,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.2</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.3</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -231,6 +247,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.4.3',
+                date: '2026-08-21',
+                title: '모바일에서는 챗봇을 전체화면으로 표시',
+                added: [
+                    '화면 폭 640px 이하(모바일)에서는 목록을 유지할 필요가 없으므로 챗봇을 전체화면으로 표시하도록 변경 (데스크톱은 기존처럼 우측 하단 패널 유지)',
+                ],
+            },
             {
                 version: '1.4.2',
                 date: '2026-08-21',
