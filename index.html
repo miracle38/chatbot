@@ -42,6 +42,7 @@
         .bot-card {
             background: #fff;
             border-radius: 18px;
+            border: 1.5px solid transparent;
             box-shadow: 0 6px 28px rgba(16,38,77,0.08);
             padding: 26px;
             display: flex;
@@ -180,7 +181,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.1</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.2</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -199,6 +200,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.2.2',
+                date: '2026-08-21',
+                title: '카드 테두리에 봇 색상 반영',
+                added: [
+                    '카드 테두리에 각 봇의 OfficeAgent 설정 색상을 옅게 적용해 카드끼리 구분되도록 변경',
+                ],
+            },
             {
                 version: '1.2.1',
                 date: '2026-08-20',
@@ -341,7 +350,7 @@
             } catch (e) { /* 저장 공간 문제 등은 무시 */ }
         }
 
-        function renderBotInfo(card, name, description, avatarUrl) {
+        function renderBotInfo(card, name, description, avatarUrl, color) {
             const h2 = card.querySelector('h2');
             const desc = card.querySelector('p.desc');
             const btn = card.querySelector('button');
@@ -356,6 +365,9 @@
             if (avatarUrl) {
                 icon.classList.add('has-avatar');
                 icon.innerHTML = `<img src="${esc(avatarUrl)}" alt="" onerror="this.parentElement.classList.remove('has-avatar'); this.parentElement.textContent='💬'">`;
+            }
+            if (color) {
+                card.style.borderColor = color + '4D';
             }
         }
 
@@ -376,7 +388,7 @@
             if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
                 bot.name = cached.name;
                 bot.description = cached.description;
-                renderBotInfo(card, cached.name, cached.description, cached.avatarUrl);
+                renderBotInfo(card, cached.name, cached.description, cached.avatarUrl, cached.color);
                 return;
             }
 
@@ -391,14 +403,15 @@
                 bot.name = data.chatbot_name || (data.agent && data.agent.name) || bot.site_key;
                 bot.description = (data.agent && data.agent.description) || '';
                 bot.avatarUrl = (data.agent && data.agent.avatar_url) || '';
-                renderBotInfo(card, bot.name, bot.description, bot.avatarUrl);
-                writeCache(bot.site_key, { name: bot.name, description: bot.description, avatarUrl: bot.avatarUrl, ts: Date.now() });
+                bot.color = data.color || '';
+                renderBotInfo(card, bot.name, bot.description, bot.avatarUrl, bot.color);
+                writeCache(bot.site_key, { name: bot.name, description: bot.description, avatarUrl: bot.avatarUrl, color: bot.color, ts: Date.now() });
             } catch (err) {
                 // API 호출이 실패해도(예: rate limit) 이전에 성공했던 캐시가 있으면 그걸로 보여줌
                 if (cached) {
                     bot.name = cached.name;
                     bot.description = cached.description;
-                    renderBotInfo(card, cached.name, cached.description, cached.avatarUrl);
+                    renderBotInfo(card, cached.name, cached.description, cached.avatarUrl, cached.color);
                 } else {
                     renderBotError(card, err.message);
                 }
