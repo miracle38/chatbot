@@ -113,7 +113,7 @@
 
         .page-footer { max-width: 880px; margin: 40px auto 0; text-align: center; }
         .page-footer .version-link {
-            color: #64748b; font-size: 0.85em; text-decoration: none;
+            color: #94a3b8; font-size: 0.72em; text-decoration: none;
             background: none; border: none; cursor: pointer; font-family: inherit;
         }
         .page-footer .version-link:hover { color: #2a5298; text-decoration: underline; }
@@ -181,7 +181,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.2</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.2.3</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -200,6 +200,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.2.3',
+                date: '2026-08-21',
+                title: '하단 버전 정보 문구 축소',
+                fixed: [
+                    '푸터의 "버전 정보" 링크 글자 크기를 줄여 덜 눈에 띄게 조정',
+                ],
+            },
             {
                 version: '1.2.2',
                 date: '2026-08-21',
