@@ -154,6 +154,8 @@
                 background: rgba(255,255,255,0.95);
                 box-shadow: 0 2px 8px rgba(16,38,77,0.2);
             }
+            /* 챗봇이 전체화면으로 떠 있는 동안 뒤의 카드 목록이 같이 스크롤되지 않도록 고정 */
+            body.chat-open { overflow: hidden; }
         }
 
         .page-footer { max-width: 880px; margin: 40px auto 0; text-align: center; }
@@ -226,7 +228,7 @@
     <div class="grid" id="botGrid"></div>
 
     <div class="page-footer">
-        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.3</span> 버전 정보</button>
+        <button type="button" class="version-link" onclick="openVersionModal()">v<span id="appVersionLabel">1.4.4</span> 버전 정보</button>
     </div>
     <footer class="site-footer">© 2026 KHS (miracle38)</footer>
 
@@ -247,6 +249,14 @@
     <script type="module">
         // 버전 이력 (최신이 위) — 버전 올릴 때 이 배열 맨 앞에 항목 추가 + 푸터 #appVersionLabel 텍스트 변경
         const VERSION_HISTORY = [
+            {
+                version: '1.4.4',
+                date: '2026-08-21',
+                title: '모바일 전체화면 챗봇 뒤 배경 스크롤 방지',
+                fixed: [
+                    '모바일에서 챗봇이 전체화면으로 열려 있을 때 뒤의 카드 목록이 같이 스크롤되던 문제 — 챗봇이 열려 있는 동안 body 스크롤을 고정',
+                ],
+            },
             {
                 version: '1.4.3',
                 date: '2026-08-21',
@@ -591,6 +601,7 @@
             currentFrame = frames[bot.site_key];
             currentFrame.classList.add('active');
             chatPanel.classList.add('active');
+            document.body.classList.add('chat-open');
 
             if (!chatHistoryPushed) {
                 history.pushState({ chatbotOpen: true }, '');
@@ -601,6 +612,7 @@
         function hideChatOverlay() {
             if (currentFrame) currentFrame.classList.remove('active');
             chatPanel.classList.remove('active');
+            document.body.classList.remove('chat-open');
         }
 
         // 모바일에서 챗봇이 열려 있을 때 단말기 뒤로가기를 누르면 페이지를 나가지 않고
